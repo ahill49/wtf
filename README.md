@@ -1,7 +1,7 @@
 # wtf
 
 
-Code here is for automatically classifying MapSwipe data
+Automatically classifying MapSwipe data with a deep neural network.
 Code is based on DeepVGI-0.1, DeepVGI-0.2v and DeepVGI-0.3 (Heidelberg University)
 
 http://papers.www2017.com.au.s3-website-ap-southeast-2.amazonaws.com/companion/p771.pdf
