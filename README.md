@@ -25,7 +25,7 @@ Preferences -> Python interpreter variable to
 
 5. Download MapSwipe annotations from http://mapswipe.geog.uni-heidelberg.de/?id=2020
 
-6. Create api_key.txt file containing Bing maps API key. See https://msdn.microsoft.com/en-us/library/ff428642.aspx
+6. Unless provided in this repository, create api_key.txt file containing Bing maps API key. See https://msdn.microsoft.com/en-us/library/ff428642.aspx
 
 7. Download images using ./lib/get_bing.py
 
