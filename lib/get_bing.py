@@ -35,7 +35,7 @@ def read_api_key(filename_api_key):
         api_key = f.read()
     except:
         print "Can't read API key file:\n" + filename_api_key
-        return api_key
+    return api_key
 
 def quadKey_to_url(quadKey,api_key):
     # Read textfile with Bing Maps API key
