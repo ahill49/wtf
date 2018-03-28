@@ -124,7 +124,6 @@ class TileCollection(list):
         xmax = (x + 1) / n * 360.0 - 180
         ymin = math.degrees(math.atan(math.sinh(math.pi * (1 - 2 * y / n))))
         ymax = math.degrees(math.atan(math.sinh(math.pi * (1 - 2 * (y + 1) / n))))
-        #return (xmin, ymin, xmax, ymax) #QgsGeometry.fromRect(QgsRectangle(xmin, ymin, xmax, ymax))
         return Tile(xmin, ymin, xmax, ymax, x, y, z)
         
 parser = argparse.ArgumentParser()
@@ -134,10 +133,12 @@ parser.add_argument("-of", "--outfile", help="output file name")
 args = parser.parse_args()
 print(args)
 
+'''
 xmin = args.bbox[0]
 ymin = args.bbox[1]
 xmax = args.bbox[2]
 ymax = args.bbox[3]
+'''
 
 tc = TileCollection()
 
@@ -146,7 +147,7 @@ print(tc)
 #tile = tc.tileGeometry(min_tile[0], min_tile[1], args.zoomlevel)
 #print(tile)
 
-geom = Point(5,52).buffer(0.005)
+geom = Point(5,52).buffer(0.01)
 #print(geom)
 
 tc.generate_tiles(geom,18)
