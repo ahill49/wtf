@@ -37,7 +37,7 @@ if __name__ == '__main__':
     
     nn = 'lenet'    # network model
     tr_b = 30      # Batch size for NN
-    tr_e = 1000    # epoch number for NN
+    tr_e = 500    # epoch number for NN (default 1000)
     tr_t = 8       # number of threads for NN
    
     te_z = 1000    # test size (also called te_n)
@@ -72,6 +72,7 @@ if __name__ == '__main__':
         task_y = line['task_y']
         img = '%s-%s-all.jpeg' % (task_x, task_y)
         p_imgs_raw.append(img)
+        
     p_imgs = list(set(p_imgs_raw))
 
     # Read all tile names
@@ -119,25 +120,26 @@ if __name__ == '__main__':
     # plt.imshow(img_X[1,:,:,:])
     # plt.show()
     
-    # Train neural net
-    MS_model = NN_Model.Model(img_X, label, nn)
-
+    MS_model = NN_Model.Model(img_X, label, nn + '_ZYX')
+    
     if True:
-        print '--------------- Training NN ---------------'
         MS_model.set_batch_size(tr_b)
         MS_model.set_epoch_num(tr_e)
         MS_model.set_thread_num(tr_t)
         
-        ### CODE FAILS HERE ###
+        print '--------------- Training NN ---------------'
+
         MS_model.train(nn)
-        print '--------------- Evaluation on Training Samples ---------------'
-        S_model.evaluate()
+    
+    print '--------------- Evaluation on Training Samples ---------------'
+    
+    MS_model.evaluate()
     del img_X, label
-    gc.collect()
+    #gc.collect()
 
     ### CODE BELOW IS UNCHANGED ORIGINAL CODE SNIPPET
 
-    #print '--------------- Evaluation on Validation Samples ---------------'
+    print '--------------- Evaluation on Validation Samples ---------------'
     #img_X2, Y2 = FileIO.read_gRoad_valid_sample(te_n)
     #MS_model.set_evaluation_input(img_X2, Y2)
     #MS_model.evaluate()
