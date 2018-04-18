@@ -69,8 +69,8 @@ class Model(object):
 
     def train_vggnet(self):
         ## input
-        x_image = tf.placeholder(tf.float32, shape=[None, self.rows, self.cols, self.bands])
-        y_ = tf.placeholder(tf.float32, shape=[None, self.class_num])
+        x_image = tf.placeholder(tf.float32, shape=[None, self.rows, self.cols, self.bands], name = 'x_image')
+        y_ = tf.placeholder(tf.float32, shape=[None, self.class_num], name = 'y_')
 
         ## Conv1_1
         W_conv1_1 = self.__weight_variable([7, 7, self.bands, 64])      # enlarge the filter size 3 to 7
@@ -158,7 +158,7 @@ class Model(object):
         W_fc6 = self.__weight_variable([shape_n, 1024])
         b_fc6 = self.__bias_variable([1024])
         h_fc6 = tf.nn.relu_layer(tf.reshape(h_pool4, [-1, shape_n]), W_fc6, b_fc6)
-        keep_prob = tf.placeholder(tf.float32)
+        keep_prob = tf.placeholder(tf.float32, name = 'keep_prob')
         h_fc6_drop = tf.nn.dropout(h_fc6, keep_prob)
 
         ## FC 7
@@ -194,8 +194,8 @@ class Model(object):
 
     def train_alexnet(self):
         ## input
-        x_image = tf.placeholder(tf.float32, shape=[None, self.rows, self.cols, self.bands])
-        y_ = tf.placeholder(tf.float32, shape=[None, self.class_num])
+        x_image = tf.placeholder(tf.float32, shape=[None, self.rows, self.cols, self.bands], name = 'x_image')
+        y_ = tf.placeholder(tf.float32, shape=[None, self.class_num], name = 'y_')
 
         ## Conv1, Pool1, Norm1
         W_conv1 = self.__weight_variable([11, 11, self.bands, 96])
@@ -243,7 +243,9 @@ class Model(object):
         y_conv = tf.nn.xw_plus_b(h_fc7, W_fc8, b_fc8)
         prob = tf.nn.softmax(y_conv)
 
-        cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y_conv, y_))
+        ## original code
+        ## cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y_conv, y_))
+        cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y_conv))
         train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
         correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_, 1))
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
@@ -254,7 +256,7 @@ class Model(object):
         tf.add_to_collection("y_", y_)
         tf.add_to_collection("y_conv", y_conv)
         tf.add_to_collection("prob", prob)
-        keep_prob = tf.placeholder(tf.float32)  # NOT used
+        keep_prob = tf.placeholder(tf.float32, name = 'keep_prob')  # NOT used
         tf.add_to_collection("keep_prob", keep_prob)
 
         saver = tf.train.Saver()
@@ -264,15 +266,18 @@ class Model(object):
 
 
     def train_lenet(self):
+        
         ## input
-        x_image = tf.placeholder(tf.float32, shape=[None, self.rows, self.cols, self.bands])
-        y_ = tf.placeholder(tf.float32, shape=[None, self.class_num])
+        # explicitly name them
+        x_image = tf.placeholder(tf.float32, shape=[None, self.rows, self.cols, self.bands], name='x_image')
+        y_ = tf.placeholder(tf.float32, shape=[None, self.class_num], name = 'y_')
         tf.add_to_collection("x_image", x_image)
         tf.add_to_collection("y_", y_)
 
         ## First Layer
         W_conv1 = self.__weight_variable([8, 8, self.bands, 16])
         b_conv1 = self.__bias_variable([16])
+        #  h(x) = f(sum(W.x + b))
         h_conv1 = tf.nn.relu(self.__conv2d(x_image, W_conv1) + b_conv1)
         h_pool1 = self.__max_pool_4x4(h_conv1)
 
@@ -289,7 +294,7 @@ class Model(object):
         h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
 
         ## Dropout
-        keep_prob = tf.placeholder(tf.float32)
+        keep_prob = tf.placeholder(tf.float32, name = 'keep_prob')
         h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
         tf.add_to_collection("keep_prob", keep_prob)
 
@@ -299,7 +304,9 @@ class Model(object):
         y_conv = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
         tf.add_to_collection("y_conv", y_conv)
 
-        cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y_conv, y_))
+        ## original code
+        #cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y_, y_conv))
+        cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y_conv))
         train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
         # train_step = tf.train.GradientDescentOptimizer(1e-4).minimize(cross_entropy)
         correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_, 1))
@@ -389,6 +396,7 @@ class Model(object):
                 i1 = i * batch
                 i2 = (i + 1) * batch if (i + 1) * batch < self.sample_size else self.sample_size
                 print 'predict...  %d to %d \n' % (i1, i2)
+                #  
                 label_pred[i1:i2], score[i1:i2] = sess.run([tf.argmax(y_conv, 1), tf.nn.softmax(y_conv)[:, 1]],
                                                            feed_dict={x_image: self.X_imgs[i1:i2],
                                                                       y_: self.Y_labels[i1:i2], keep_prob: 1.0})
@@ -443,6 +451,8 @@ class Model(object):
 
     @staticmethod
     def __weight_variable(shape):
+        # Generate random values from a truncated normal distribution with specified mean and standard deviation (values whose magnitude is more than 2 standard deviations from the mean are dropped and re-picked).
+        # (by default, mean=0.0)
         initial = tf.truncated_normal(shape, stddev=0.1)
         return tf.Variable(initial)
 
