@@ -139,7 +139,7 @@ if __name__ == '__main__':
 
     ### CODE BELOW IS UNCHANGED ORIGINAL CODE SNIPPET
 
-    print '--------------- Evaluation on Validation Samples ---------------'
+    #print '--------------- Evaluation on Validation Samples ---------------'
     #img_X2, Y2 = FileIO.read_gRoad_valid_sample(te_n)
     #MS_model.set_evaluation_input(img_X2, Y2)
     #MS_model.evaluate()
